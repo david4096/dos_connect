@@ -55,6 +55,20 @@ def main(args):
             g.set(metric.count)
         return generate_latest()
 
+    @app.route('/swagger.json')
+    def swagger_endpoint():
+        with open('dos_connect/server/swagger.json') as f:
+            data = json.load(f)
+        return (json.dumps(data), 200)
+
+    @app.route('/ga4gh/des/v1/sign/<data_object_id>')
+    def des_sign(data_object_id):
+        """
+        get by id
+        """
+        print(data_object_id)
+        return SignDataObject(data_object_id=data_object_id)
+
     @app.route("/")
     def to_ui():
         return redirect("/ga4gh/dos/v1/ui", code=302)

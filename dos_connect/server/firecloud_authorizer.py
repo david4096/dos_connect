@@ -6,6 +6,7 @@
 import flask
 import logging
 from decorator import decorator
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,11 @@ def check_auth(auth):
     '''This function is called to check if a token is valid.'''
     # log.info('check_auth {} {}'.format(username, password))
     # TODO
-    return auth == "Bearer test"
+    headers = {"Authorization": auth}
+    firecloud_response = requests.get("https://api.firecloud.org/me", headers=headers)
+    print(firecloud_response.json())
+    return firecloud_response.status_code == 200
+
 
 
 def authenticate():

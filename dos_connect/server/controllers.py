@@ -66,6 +66,7 @@ def GetDataObject(**kwargs):
     get by id
     """
     properties = AttributeDict({'id': kwargs['data_object_id']})
+    print(properties)
     version = kwargs.get('version', None)
     if version:
         properties['version'] = version
@@ -276,3 +277,30 @@ def ListDataBundles(**kwargs):
     data_objects = [x.to_dict() for x in search(properties, 'data_bundles',
                                                 size=page_size)]
     return({"data_bundles": data_objects}, 200)
+
+from google.cloud import storage
+import datetime
+
+@authorization_check
+def SignDataObject(**kwargs):
+    properties = AttributeDict({'id': kwargs.get('data_object_id')})
+    print(properties)
+    # version = kwargs.get('version', None)
+    # if version:
+    #     properties['version'] = version
+    # Get the Data Object from our dictionary
+    try:
+        data_object = search(properties, size=1).next().to_dict()
+        gs_url = data_object['urls'][1]['url']
+        bucket = gs_url.replace('gs://', '').split('/')[0]
+        blob = "/".join(gs_url.replace('gs://', '').split('/')[1:])
+        client = storage.Client()
+        gsbucket = client.get_bucket(bucket)
+        gsblob = gsbucket.get_blob(blob)
+        signed_url = gsblob.generate_signed_url(datetime.timedelta(seconds=60))
+        return signed_url
+    except Exception as e:
+        log.exception(e)
+    return ({'msg': "The requested Data "
+                    "Object wasn't found", 'status_code': 404}, 404)
+
