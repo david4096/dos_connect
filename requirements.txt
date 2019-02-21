@@ -9,6 +9,6 @@ google-cloud-storage==1.6.0
 python-swiftclient==3.4.0
 python-keystoneclient==3.13.0
 watchdog==0.8.3
-git+git://github.com/ga4gh/data-object-schemas@master
+git+git://github.com/ga4gh/data-object-schemas@dos-0.2.1
 oauthlib==3.0.0
 requests_oauthlib==1.1.0

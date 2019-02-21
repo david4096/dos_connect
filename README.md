@@ -1,3 +1,100 @@
+<hr />
+<em>- For Demonstration Use Only -</em>
+
+## Data Repository Services Prototype
+
+This demonstration builds on prior work in the Data Object Services schema to explore features
+and integrate with Firecloud API services.
+
+Features
+
+* Elasticsearch backend
+* Google Cloud Storage Inventory
+* Firecloud authorization delegation
+* Google Cloud Storage signed URLs
+
+Jump to the swagger UI of the schemas used for this demo here: https://petstore.swagger.io/?url=https://raw.githubusercontent.com/david4096/dos_connect/master/dos_connect/server/data_object_service.swagger.yaml
+
+### Background
+
+dos_connect was originally prepared by Brian Walsh to explore integrating a number of storage
+backends with the Data Object Service Schemas. The Data Object Service is an attempt to provide
+a cloud neutral, and backend neutral API interface for exchanging metadata about data in
+object stores.
+
+### Running the Demonstration
+
+For this demonstration, begin by getting the source for this fork:
+
+```
+
+git clone https://github.com/david4096/dos_connect.git
+cd dos_connect
+
+```
+
+Then, create a virtual environment and install dependencies. We will also install jupyter
+and the ipykernel for the purposes of interacting with the server.
+
+```
+virtualenv env
+source env/bin/activate
+pip install -r requirements.txt
+pip install jupyter ipykernel
+ipython kernel install --user --name=drsdemo
+```
+
+#### Running Elasticsearch docker
+
+Assuming you have docker installed, you install and run an instance using this command.
+
+```
+docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" docker.elastic.co/elasticsearch/elasticsearch:5.5.3
+```
+
+This will take a few moments to download and start. When complete these two commands will
+initialize the ES index.
+
+```
+curl -XPUT "http://localhost:9200/data_objects/_mapping/data_object" -H 'Content-Type: application/json' -d' {"properties": { "checksums": { "properties": { "checksum": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } }, "type": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } } } }, "created": { "type": "date" }, "id": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } }, "name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } }, "size": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } }, "updated": { "type": "date" }, "urls": { "properties": { "url": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } } } }, "version": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } } }}'
+curl -X PUT localhost:9200/data_objects
+```
+
+#### Get your Google Application Credentials
+
+Log in to Google Cloud console and create a service account if you don't already have one. Then,
+create, and download the key to your local system in JSON format.
+
+For more information:
+
+https://docs.bmc.com/docs/PATROL4GoogleCloudPlatform/10/creating-a-service-account-key-in-the-google-cloud-platform-project-799095477.html
+
+#### Set environment variables
+
+Before initializing the server, we will set some environment variables to be read at runtime.
+
+```
+export GOOGLE_APPLICATION_CREDENTIALS=/location/to/your/creds.json
+export BACKEND=dos_connect.server.elasticsearch_backend
+export AUTHORIZER=dos_connect.server.firecloud_authorizer
+python -m dos_connect.server.app
+```
+
+Once the server is started you can view the swagger at http://localhost:8080/ui .
+
+#### Get a firecloud bearer token and start the notebook
+
+Now, to run the demo, we'll get a Firecloud API token. Go to https://api.firecloud.org/ and login
+requesting openid scopes by clicking the `Authorize` button in the upper right of the page.
+
+Then, copy the bearer token down and start `jupyter notebook`. The rest of the demo continues
+in "Data Services Prototype 2.ipynb".
+
+#### Watch the Video!
+
+https://drive.google.com/open?id=1iyKLh2j3puBczuvqRLj4WakPVL3uHHiO
+
+<hr />
 
 
 
